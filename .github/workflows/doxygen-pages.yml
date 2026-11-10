@@ -1,55 +1,49 @@
-name: Build & Publish Doxygen to Pages
+name: Publish Doxygen to GitHub Pages
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [main]
   workflow_dispatch:
 
 permissions:
   contents: read
+  pages: write
+  id-token: write
 
 concurrency:
-  group: "pages"
+  group: pages
   cancel-in-progress: false
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v6
-
-      - name: Install doxygen & graphviz
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y doxygen graphviz
-
-      - name: Build docs (Doxygen)
-        working-directory: ./docs
-        shell: bash
-        run: |
-          # Use the system Graphviz instead of the portable Windows copy.
-          { cat Doxyfile; printf '\nDOT_PATH =\n'; } | doxygen -
-          test -s out/html/index.html
-          test -n "$(find out/html -name '*inherit__graph.svg' -size +0c -print -quit)"
-
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v4
-        with:
-          path: docs/out/html
-
-  deploy:
-    needs: build
+  publish:
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-    permissions:
-      pages: write
-      id-token: write
     steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
+
+      - name: Install Doxygen and Graphviz
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y doxygen graphviz
+
+      - name: Generate HTML documentation
+        working-directory: docs
+        run: |
+          # Clear the Windows-specific path so Doxygen finds Graphviz on Ubuntu.
+          sed -i 's/^DOT_PATH[[:space:]]*=.*/DOT_PATH =/' Doxyfile
+          doxygen Doxyfile
+
+      - name: Upload HTML documentation
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: docs/out/html
 
       - name: Deploy to GitHub Pages
         id: deployment
