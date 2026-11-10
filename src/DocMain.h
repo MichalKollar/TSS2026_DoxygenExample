@@ -19,7 +19,7 @@
   * - Class-level documentation (`@class`, `@ingroup`)
   * - File-level headers (`@file`)
   * - Function and parameter comments (`@param`, `@return`)
-  * - Various formatting tags and cross-references (`@ref`, `@link`)
+  * - Cross-references (`@ref`, `@link`), source excerpts (`@snippet`) and diagrams
   *
   * @par Technologies used
   * - C++17 and Qt 6 Widgets
@@ -32,25 +32,20 @@
   * - @ref io – input/output layer (file handling and encoding)
   *
   * @section usage How to generate the documentation
-  * 1. Open a terminal in the `docs/` folder.
-  * 2. Run Doxygen using the portable binary:
-  *    \code{.bash}
+  * 1. Extract the ZIP and open PowerShell in the project folder.
+  * 2. Run the bundled Windows version of Doxygen:
+  *    \code
+  *    cd docs
   *    ..\tools\doxygen\doxygen.exe Doxyfile
   *    \endcode
   * 3. Open `docs/out/html/index.html` in your browser.
   *
   * @subsection example_code Example of code documentation
-  * Below is an example showing how a method can be documented:
-  * \code{.cpp}
-  * /**
-  *  * @brief Loads text from a given file.
-  *  * @param[in] path Absolute path to the file.
-  *  * @param[out] outText Variable that will hold the loaded content.
-  *  * @return true on success, false otherwise.
-  *  * @warning The file must be readable; otherwise, an error is shown.
-  *  *\/
-  *  bool FileTxt::open(const QString& path, QString& outText);
-  * \endcode
+  * This excerpt comes from @ref FileFactory.h and shows how
+  * @ref IO::FileFactory::open() documents parameters and return values.
+  * @snippet FileFactory.h open
+  * The @link IO::FileTxt::open() implementation @endlink reuses that description
+  * through `@copydoc`.
   *
   * @section resources Useful resources
   * - https://www.doxygen.nl/index.html Official Doxygen homepage
@@ -61,7 +56,7 @@
   * The image shown above is stored in `docs/images/ui_overview.png`.
   * To make sure Doxygen finds it, set in your Doxyfile:
   * \code
-  * IMAGE_PATH = ../docs/images
+  * IMAGE_PATH = images
   * \endcode
   *
   */

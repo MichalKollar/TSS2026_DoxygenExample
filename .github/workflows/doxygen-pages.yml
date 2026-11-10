@@ -7,18 +7,16 @@ on:
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
 
 concurrency:
   group: "pages"
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Install doxygen & graphviz
         run: |
@@ -27,15 +25,21 @@ jobs:
 
       - name: Build docs (Doxygen)
         working-directory: ./docs
-        run: doxygen Doxyfile
+        shell: bash
+        run: |
+          # Use the system Graphviz instead of the portable Windows copy.
+          { cat Doxyfile; printf '\nDOT_PATH =\n'; } | doxygen -
+          test -s out/html/index.html
+          test -n "$(find out/html -name '*inherit__graph.svg' -size +0c -print -quit)"
 
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v4
         with:
           path: docs/out/html
 
   deploy:
     needs: build
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     environment:
       name: github-pages
@@ -44,10 +48,8 @@ jobs:
       pages: write
       id-token: write
     steps:
-      - name: Configure Pages (enable if needed)
+      - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
-        with:
-          enablement: true
 
       - name: Deploy to GitHub Pages
         id: deployment

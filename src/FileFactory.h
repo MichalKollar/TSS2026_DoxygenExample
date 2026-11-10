@@ -30,30 +30,32 @@ namespace IO {
 	 * @details
 	 * Implementations are expected to guarantee UTF-8 encoding by default.
 	 *
-	 * @invariant Implementations must not throw exceptions; they return @c bool instead.
-	 * @see FileTxt
+	 * @see IO::FileTxt
 	 */
 	class FileFactory
 	{
 	public:
 		/// Virtual destructor for safe polymorphic deletion.
 		virtual ~FileFactory() = default;
+		// [open]
 		/**
-		* @brief Opens a file and reads its contents as text.
-		* @param[in] path Absolute or relative path to the file.
-		* @param[out] outText Destination buffer receiving the file content.
-		* @return @c true on success, @c false otherwise.
-		* @see save()
-		*/
+		 * @brief Opens a file and reads its contents as text.
+		 * @param[in] path Absolute or relative path to the file.
+		 * @param[out] outText Text read from the file on success.
+		 * @retval true The file was read successfully.
+		 * @retval false The file could not be read. @p outText is unchanged.
+		 * @see save()
+		 */
 		virtual bool open(const QString& path, QString& outText) = 0;
+		// [open]
 
 		/**
-		* @brief Saves text content to a file.
-		* @param[in] path Absolute or relative path to the file.
-		* @param[in] inText Text to be written to disk.
-		* @return @c true on success, @c false otherwise.
-		* @see open()
-		*/
+		 * @brief Saves text content to a file.
+		 * @param[in] path Absolute or relative path to the file.
+		 * @param[in] inText Text to be written to disk.
+		 * @return @c true on success, @c false otherwise.
+		 * @see open()
+		 */
 		virtual bool save(const QString& path, const QString& inText) = 0;
 	};
 } // namespace IO

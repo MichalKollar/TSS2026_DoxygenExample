@@ -16,15 +16,18 @@ namespace IO {
 	 * Uses @c QFile and @c QTextStream to read/write textual data in UTF-8.
 	 *
 	 * @since 1.0
-	 * @see FileFactory
+	 * @see IO::FileFactory
 	 */
 	class FileTxt : public FileFactory {
 	public:
+		/// Constructs a text file handler.
 		FileTxt() = default;
+		/// Destroys the text file handler.
 		~FileTxt() override = default;
 		/// @copydoc FileFactory::open()
 		bool open(const QString& path, QString& outText) override;
 		/// @copydoc FileFactory::save()
+		/// @attention If saving fails, the previous file contents are preserved.
 		bool save(const QString& path, const QString& inText) override;
 	private:
 		QString text = ""; /*!< Last content processed by this instance.

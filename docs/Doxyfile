@@ -9,7 +9,7 @@
 # Názov projektu – zobrazí sa na titulnej stránke dokumentácie
 PROJECT_NAME           = "DoxygenExample"
 
-# Kam sa uloží vygenerovaný výstup (relatívne k tomuto súboru)
+# Kam sa uloží výstup (relatívne k pracovnému priečinku docs/)
 # Odporúčanie: používať podpriečinok „out“, aby sa repozitár nezaplnil HTML súbormi
 OUTPUT_DIRECTORY       = ./out
 
@@ -26,9 +26,8 @@ GENERATE_LATEX         = NO
 # Kde sa nachádzajú zdrojové súbory projektu (v našej štruktúre sú v ../src)
 INPUT                  = ../src
 
-# Ktoré prípony súborov sa majú spracovať
-# Qt projekty často používajú .h, .cpp a .ui
-FILE_PATTERNS          = *.h *.cpp *.ui 
+# Dokumentujeme C++ zdrojové súbory. Súbor .ui je XML formulár Qt Designera.
+FILE_PATTERNS          = *.h *.cpp
 
 # Ak má projekt podpriečinky, prechádza ich rekurzívne
 RECURSIVE              = YES
@@ -37,25 +36,19 @@ RECURSIVE              = YES
 
 # --- EXTRAKCIA INFORMÁCIÍ Z KÓDU ------------------------------
 
-# Ak je YES, Doxygen zdokumentuje všetko – aj bez komentárov
-# Pre výučbu nechávame NO, aby bolo vidno, ktoré časti ešte chýbajú
- EXTRACT_ALL            = YES
-#EXTRACT_ALL            = NO
+# Hodnota NO zachová varovania o chýbajúcich dokumentačných komentároch.
+EXTRACT_ALL            = NO
 
-# Dokumentovať aj private členov tried (napr. privátne premenné)? Väčšinou nie.
-EXTRACT_PRIVATE        = NO
+# Zahrnie aj dokumentované privátne členy, napríklad ukážku @deprecated.
+EXTRACT_PRIVATE        = YES
 
 # Dokumentovať aj statické (static) metódy – áno, tie sú často dôležité
 EXTRACT_STATIC         = YES
 
-# Dokumentovať aj metódy vnorených tried a štruktúr
-EXTRACT_LOCAL_METHODS  = YES
-
-# Automaticky interpretovať prvý riadok komentára ako @brief
-# Vďaka tomu stačí napísať /** Trieda pre úpravu fotiek. */
+# Použiť prvú vetu komentára /** ... */ ako stručný popis.
 JAVADOC_AUTOBRIEF      = YES
 
-# Umožní používať aj Qt štýl komentárov (/// alebo //!)
+# Použiť prvú vetu komentára v štýle Qt ako stručný popis.
 QT_AUTOBRIEF           = YES
 
 # Varovania, ak niečo nie je zdokumentované
@@ -71,13 +64,14 @@ WARN_IF_DOC_ERROR      = YES
 # Aktivuje generovanie UML diagramov a vzťahov
 HAVE_DOT               = YES
 
-# Cesta ku Graphviz (portable verzia: tools/graphviz)
+# Lokálna cesta k prenosnému Graphvizu pre Windows.
+# Workflow túto hodnotu vyprázdni, aby Doxygen našiel systémový dot v PATH.
 DOT_PATH               = ../tools/graphviz
 
 # Použije UML-štýl symbolov (namiesto jednoduchých boxov)
 UML_LOOK               = YES
 
-# Zahrnie aj atribúty a metódy v diagramoch.
+# Pridá typy atribútov a parametre metód do UML diagramov.
 DOT_UML_DETAILS        = YES
 
 # Formát obrázkov v HTML – SVG je najkvalitnejší (zoomovateľný)
@@ -101,14 +95,16 @@ INLINE_SOURCES         = NO
 # Odstrániť komentáre z ukážok kódu – NIE, chceme ich zachovať
 STRIP_CODE_COMMENTS    = NO
 
-#Aby sa v HTML nezobrazovali dlhé absolútne cesty:
+# V HTML zobraziť názvy súborov bez úplných ciest.
 FULL_PATH_NAMES        = NO
-STRIP_FROM_PATH        = ../
 
 # --- ĎALŠIE MOŽNOSTI (na doplnenie podľa potreby) -------------
 
-# Do dokumentacie možeme pridávať naše obrázky
-IMAGE_PATH = ../docs/images
+# Priečinok pre obrázky použité cez @image.
+IMAGE_PATH             = images
+
+# Priečinok so zdrojovými ukážkami vkladanými cez @snippet.
+EXAMPLE_PATH           = ../src
 
 # Generovať interaktívne rozbaľovacie menu v HTML
 GENERATE_TREEVIEW      = YES
@@ -119,10 +115,6 @@ GENERATE_TREEVIEW      = YES
 # Pridanie loga na titulnú stránku
 # PROJECT_LOGO           = ../docs/logo.png
 
-# Použiť README.md ako hlavnú stránku (alternatíva k @mainpage)
-# USE_MDFILE_AS_MAINPAGE = ../README.md
-
-
 # --- KONIEC SÚBORU --------------------------------------------
 # Na spustenie dokumentácie:
 #   cd docs
@@ -131,8 +123,5 @@ GENERATE_TREEVIEW      = YES
 # Výsledok sa uloží do:
 #   docs/out/html/index.html
 #
-# Pre Git:
-#   odporúča sa pridať do .gitignore:
-#   docs/out/
 # ============================================================
 

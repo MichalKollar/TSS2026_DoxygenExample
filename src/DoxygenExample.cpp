@@ -7,16 +7,17 @@
  */
 
 #include "DoxygenExample.h"
-#include <QMessageBox>
+#include "FileTxt.h"
+#include <QCloseEvent>
 #include <QFileDialog>
+#include <QMessageBox>
 
 DoxygenExample::DoxygenExample(QWidget* parent)
-	: QMainWindow(parent)
+	: QMainWindow(parent), file(std::make_unique<IO::FileTxt>())
 {
 	ui.setupUi(this);
 
-	// Using Qt-style "brief" comments:
-	//! Assign standard keyboard shortcuts for convenience.
+	// Assign standard keyboard shortcuts.
 	ui.actionOpen->setShortcut(QKeySequence::Open);
 	ui.actionSave->setShortcut(QKeySequence::Save);
 
@@ -28,23 +29,12 @@ DoxygenExample::DoxygenExample(QWidget* parent)
 	updateWindowTitle();
 }
 
-/**
- * @brief Sets the dirty flag and updates the title if it changed.
- */
 void DoxygenExample::setTextChanged(bool state)
 {
-	if (textChanged == state) {
-		return;
-	}
-
 	textChanged = state;
 	updateWindowTitle();
 }
 
-/**
- * @brief Builds the window title from current file name and the dirty flag.
- * @post Title includes '*' when @ref DoxygenExample::textChanged is true.
- */
 void DoxygenExample::updateWindowTitle()
 {
 	QString name = currentPath.isEmpty() ? "untitled.txt" : currentPath;
@@ -52,14 +42,6 @@ void DoxygenExample::updateWindowTitle()
 	setWindowTitle(QString("%1").arg(name));
 }
 
-/**
- * @brief Slot: "File - Open".
- * @details
- * Prompts the user for a file path, loads the text via @ref IO::FileFactory,
- * and applies it to the central editor.
- * @warning Discards current changes if the user confirms.
- * @todo Validate file size before loading to prevent very large allocations.
- */
 void DoxygenExample::on_actionOpen_triggered()
 {
 	if (textChanged) {
@@ -77,11 +59,6 @@ void DoxygenExample::on_actionOpen_triggered()
 		return;
 	}
 
-	if (file != nullptr) {
-		delete file;
-	}
-	file = new IO::FileTxt();
-
 	QString text;
 	if (!file->open(path, text)) {
 		QMessageBox::warning(this, "Error", "Cannot open the file.");
@@ -94,13 +71,6 @@ void DoxygenExample::on_actionOpen_triggered()
 	setTextChanged(false);
 }
 
-/**
- * @brief Slot: "File - Save".
- * @details
- * Saves the current content to @ref DoxygenExample::currentPath. If the path is empty,
- * a "Save As" dialog is displayed first.
- * @note Ensures UTF-8 encoding through the I/O layer.
- */
 void DoxygenExample::on_actionSave_triggered()
 {
 	QString path = currentPath;
@@ -113,10 +83,6 @@ void DoxygenExample::on_actionSave_triggered()
 		}
 	}
 
-	if (file == nullptr) {
-		file = new IO::FileTxt();
-	}
-
 	const QString text = ui.plainTextEdit->toPlainText();
 	if (!file->save(path, text)) {
 		QMessageBox::warning(this, "Error", "Cannot save the file.");
@@ -127,24 +93,23 @@ void DoxygenExample::on_actionSave_triggered()
 	setTextChanged(false);
 }
 
-/**
- * @brief Slot: "File - Exit".
- * @details
- * Asks to save the document if there are unsaved changes and then closes the window.
- */
 void DoxygenExample::on_actionExit_triggered()
 {
+	close();
+}
+
+void DoxygenExample::closeEvent(QCloseEvent* event)
+{
 	if (textChanged) {
-		auto r = QMessageBox::question(this, "Unsaved changes", "Save before exit?");
-		if (r == QMessageBox::Yes) {
+		const auto response = QMessageBox::question(this, "Unsaved changes", "Save before exit?",
+			QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel, QMessageBox::Cancel);
+		if (response == QMessageBox::Yes) {
 			on_actionSave_triggered();
-			if (textChanged) {
-				return;
-			}
 		}
-		else if (r != QMessageBox::No) {
+		if (response != QMessageBox::No && textChanged) {
+			event->ignore();
 			return;
 		}
 	}
-	close();
+	QMainWindow::closeEvent(event);
 }
